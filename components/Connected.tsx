@@ -1,7 +1,8 @@
-import { Button, Container, Heading, HStack, Image, VStack, Text } from '@chakra-ui/react';
+import { Box, Button, Container, Heading, HStack, Icon, VStack, Text } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { FC } from 'react';
+import { FaUserNinja, FaUserAlt, FaUserAstronaut } from 'react-icons/fa';
 
 const Connected: FC = () => {
 
@@ -25,11 +26,10 @@ const Connected: FC = () => {
 
       <HStack>
         {/* have to do some images */}
-        <Image src="avatar1.png" alt="" />
-        <Image src="avatar2.png" alt="" />
-        <Image src="avatar3.png" alt="" />
-        <Image src="avatar4.png" alt="" />
-        <Image src="avatar5.png" alt="" />
+        <Icon as={FaUserNinja} h={12} w={12} color="#833BBE"/>
+        <Icon as={FaUserAstronaut} h={12} w={12} color="#833BBE"/>
+        <Icon as={FaUserAlt} h={12} w={12} color="#833BBE"/>
+
       </HStack>
 
       <Button bgColor="accent" color="white" maxW="380px">
