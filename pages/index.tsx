@@ -29,6 +29,7 @@ export default function Home() {
             {/* if connected, content, otherwise external content */}
             { connected ? <Connected/> : <Disconnected/> }
           </Center>
+          <Spacer />
           <Center>
             <Box marginBottom={4} color="white">
               <a href="https://twitter.com/gjsyme" target="_blank" rel="noopener noreferrer">By @gjsyme</a>
