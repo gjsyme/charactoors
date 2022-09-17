@@ -1,0 +1,24 @@
+{
+  "name": "Mr. Cool",
+  "symbol": "CHAR",
+  "description": "Just a bunch of charactoors adventuring.",
+  "image": "0.png",
+  "attributes": [
+    {
+      "trait_type": "Sunglasses",
+      "value": "yes"
+    },
+    {
+      "trait_type": "Charactoor",
+      "value": "absolutely"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "0.png",
+        "type": "image/png"
+      }
+    ]
+  }
+}

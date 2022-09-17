@@ -1,0 +1,24 @@
+{
+  "name": "Happy Hannah",
+  "symbol": "CHAR",
+  "description": "Just a bunch of charactoors adventuring.",
+  "image": "2.png",
+  "attributes": [
+    {
+      "trait_type": "Happy",
+      "value": "yes"
+    },
+    {
+      "trait_type": "Charactoor",
+      "value": "absolutely"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "2.png",
+        "type": "image/png"
+      }
+    ]
+  }
+}

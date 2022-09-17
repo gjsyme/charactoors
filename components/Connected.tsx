@@ -1,11 +1,77 @@
 import { Box, Button, Container, Heading, HStack, Icon, VStack, Text } from '@chakra-ui/react';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { FC } from 'react';
+import { FC, MouseEventHandler, useCallback, useMemo, useState } from 'react';
 import { FaUserNinja, FaUserAlt, FaUserAstronaut } from 'react-icons/fa';
+import { PublicKey } from '@solana/web3.js';
+import { 
+  Metaplex,
+  walletAdapterIdentity,
+  CandyMachine
+} from '@metaplex-foundation/js';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+
+// get this from tokens/candy-machine/cache.json
+const CANDY_MACHINE_ADDRESS = 'huMmfoEmkNNpu86NZwYq22iwqQ2AJNn9aXWKgyonioH';
 
 const Connected: FC = () => {
+  const { connection } = useConnection();
+  const walletAdapter = useWallet();
+  const [candyMachine, setCandyMachine] = useState<CandyMachine>();
+  const [isMinting, setIsMinting] = useState(false);
+  const router = useRouter();
 
+  const metaplex = useMemo(() => {
+    return Metaplex.make(connection).use(walletAdapterIdentity(walletAdapter));
+  }, [connection, walletAdapter]);
+
+  useEffect(() => {
+    if(!metaplex) return;
+    metaplex
+      .candyMachines()
+      .findByAddress({
+        address: new PublicKey(CANDY_MACHINE_ADDRESS)
+      })
+      .run()
+      .then((candyMachine) => {
+        console.log('candy machine', candyMachine);
+        setCandyMachine(candyMachine);
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  }, [metaplex]);
+
+  const handleMint: MouseEventHandler<HTMLButtonElement> = useCallback(
+    async (event) => {
+      console.log('event', event);
+      // weird event
+      if(event.defaultPrevented) return;
+      // bad web3 setup
+      if(!walletAdapter.connect || !candyMachine) return;
+      try{
+        setIsMinting(true);
+        const nft = await metaplex
+          .candyMachines()
+          .mint({ candyMachine })
+          .run();
+
+        console.log('nft', nft);
+        router.push(`/new-mint?mint=${nft.nft.address.toBase58()}`);
+      }catch(err){
+        console.error('error minting', err);
+      } finally {
+        // turn it off on success or error
+        setIsMinting(false);
+      }
+    }, 
+    [
+      metaplex,
+      walletAdapter,
+      candyMachine
+    ]
+  );
 
   return (
     <VStack spacing={20}>
@@ -32,7 +98,7 @@ const Connected: FC = () => {
 
       </HStack>
 
-      <Button bgColor="accent" color="white" maxW="380px">
+      <Button bgColor="accent" color="white" maxW="380px" onClick={handleMint} isLoading={isMinting}>
         <Text>Mint Charactoor</Text>
       </Button>
     </VStack>

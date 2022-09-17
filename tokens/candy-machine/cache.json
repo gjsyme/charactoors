@@ -1,0 +1,57 @@
+{
+  "program": {
+    "candyMachine": "54rD4Vmr6hf6XTGw53f4SkZ9v4paHo9wkdY4H1q3fzTU",
+    "candyMachineCreator": "54721DTWof5s6kMWB7bso4HiteJdwJYKRM5mJxnmVoF4",
+    "collectionMint": "huMmfoEmkNNpu86NZwYq22iwqQ2AJNn9aXWKgyonioH"
+  },
+  "items": {
+    "-1": {
+      "name": "Charactoors",
+      "image_hash": "3179dc0ea6e67e8331b95145a5b6b8c8ea7164c71b4d8aaa3a83bf80812e591c",
+      "image_link": "https://arweave.net/kKVN1s0roro78SZkxu1OZyGVNdmwElI5luTserJECas?ext=png",
+      "metadata_hash": "1ed3f664c70ce5aff179044608d910bb68c30fe86976a960f89f577fa0f2f634",
+      "metadata_link": "https://arweave.net/yMNcbpKrEN16IO1eM_WD34-8Xa2J0VwdSp4HzQ22f0w",
+      "onChain": true
+    },
+    "0": {
+      "name": "Mr. Cool",
+      "image_hash": "3179dc0ea6e67e8331b95145a5b6b8c8ea7164c71b4d8aaa3a83bf80812e591c",
+      "image_link": "https://arweave.net/WSmagKvv7Gck6Fr2_0wcqnyzX-9Ksozg4hWIRw2o6xk?ext=png",
+      "metadata_hash": "e6f388962adfe2ad7bf263b2a9fbb3dc18a81a4d12aca1c2193feb3e79967daf",
+      "metadata_link": "https://arweave.net/dlfqcW_wnM4sMnY_jKO2JP4XwOIMreWHtH2tZN2hl5c",
+      "onChain": true
+    },
+    "1": {
+      "name": "Mischief Embodied",
+      "image_hash": "59b9166c9704dc78b1010d895a943e4014f24629a3cd3843c783a792a434ed4a",
+      "image_link": "https://arweave.net/Epj6Aitpr1GuXJUeDRfum8qZ6k3kuuNQeDFIBFg7wmg?ext=png",
+      "metadata_hash": "8040e97b6eab559dd0656feb807a63dc6d7a1d3b3b0b8eab189228ace4ed6934",
+      "metadata_link": "https://arweave.net/IOxn637EnKIBwyRenlQyPZSVwAUXG7f_k6pO65VCBbo",
+      "onChain": true
+    },
+    "2": {
+      "name": "Happy Hannah",
+      "image_hash": "9d2362389a1d2e5d91b3e1fed4771251c9647614444a98df5f32a5dd84acb8e8",
+      "image_link": "https://arweave.net/6xAwezuoyyRG0UEcx4R8T9INi8Vxwv2IC8BFHd6Vcuc?ext=png",
+      "metadata_hash": "bfefbdf11b76eef36bb713b5e1a47af9c1803d10f5e6eb5d94bb697c11d259a3",
+      "metadata_link": "https://arweave.net/fPD_XXk5HV_P4AmEpbTmH09sW6jsBizwXh_6x9WnKAI",
+      "onChain": true
+    },
+    "3": {
+      "name": "Bowow",
+      "image_hash": "80941660812d943b4cdb6ab5ee104f94dc5a7d9baacf6d91089a762dbbd26357",
+      "image_link": "https://arweave.net/2rA6V1k-U3mdt5rZfWRCg9u5_BDR_ICMku0kj2BOLVc?ext=png",
+      "metadata_hash": "aad1f5895d5510d51afc471ffc9e0aac112be7b67bf2284aa7f88072804943dd",
+      "metadata_link": "https://arweave.net/HKq8h2WyyLMZ7jocp89bb6eYb2jta1gsHoVSoGMyFFY",
+      "onChain": true
+    },
+    "4": {
+      "name": "Jake",
+      "image_hash": "35a6c4c815910ca59f70f0314cd7f3e7a4c5938c468afd051670102324454d8b",
+      "image_link": "https://arweave.net/yfBKEPsQZeNjSQlYS4yhFCmjOZwPnXM5Qav8RWQHats?ext=png",
+      "metadata_hash": "c9cd56e7a3e3e072d0c57868ffb2fba3e64748544fe176eab8faeac847bfb108",
+      "metadata_link": "https://arweave.net/x846zlA19ZMfxdypLwFsVP9716TXjZkzzFu_wmQql18",
+      "onChain": true
+    }
+  }
+}

@@ -31,7 +31,7 @@ const Disconnected: FC = () => {
           noOfLines={2} 
           textAlign="center"
         >
-          Mint your Charactoor. Earn $XP. Level Up.
+          Mint your Charactoor. Earn $CXP. Level Up.
         </Heading>
         <Button bgColor="accent" color="white" maxW="380px" onClick={handleClick}>
           <HStack>
