@@ -5,7 +5,11 @@ import WalletContextProvider from '../components/WalletContextProvider';
 const colors = {
   background: '#1f1f1f',
   accent: '#833BBE',
-  bodyText: 'rgba(255,255,255,0.75)'
+  bodyText: 'rgba(255,255,255,0.75)',
+  secondaryPurple: 'CB8CFF',
+  containerBg: 'rgba(255, 255, 255, 0.1)',
+  containerBgSecondary: 'rgba(255, 255, 255, 0.05)',
+  buttonGreen: '#7effa7'
 }
 
 const theme = extendTheme({ colors });

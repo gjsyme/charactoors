@@ -12,8 +12,6 @@ import {
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-// get this from tokens/candy-machine/cache.json
-const CANDY_MACHINE_ADDRESS = 'huMmfoEmkNNpu86NZwYq22iwqQ2AJNn9aXWKgyonioH';
 
 const Connected: FC = () => {
   const { connection } = useConnection();
@@ -31,7 +29,7 @@ const Connected: FC = () => {
     metaplex
       .candyMachines()
       .findByAddress({
-        address: new PublicKey(CANDY_MACHINE_ADDRESS)
+        address: new PublicKey(process.env.NEXT_PUBLIC_CANDY_MACHINE_ADDRESS ?? '')
       })
       .run()
       .then((candyMachine) => {

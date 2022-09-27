@@ -1,4 +1,4 @@
-import { Connection, clusterApiUrl, Keypair, Transaction, sendAndConfirmTransaction } from '@solana/web3.js';
+import { PublicKey, Connection, clusterApiUrl, Keypair, Transaction, sendAndConfirmTransaction } from '@solana/web3.js';
 import { initializeKeypair } from './initializeKeypair';
 import * as token from '@solana/spl-token';
 import {
@@ -22,8 +22,14 @@ const TOKEN_IMAGE_NAME = "cxp.png";
 
 const createCxpToken = async (
   connection: Connection,
-  payer: Keypair
+  payer: Keypair,
+  programId: PublicKey
 ) => {
+  const [mintAuth] = await PublicKey.findProgramAddress(
+    [Buffer.from("mint")],
+    programId
+  );
+
   const tokenMint = await token.createMint(
     connection,
     payer,
@@ -90,6 +96,15 @@ const createCxpToken = async (
     [payer]
   );
 
+  await token.setAuthority(
+    connection,
+    payer,
+    tokenMint,
+    payer.publicKey,
+    token.AuthorityType.MintTokens,
+    mintAuth
+  );
+
   // write it out to file
   writeFileSync(
     "tokens/cxp/cache.json",
@@ -107,7 +122,11 @@ const main = async () => {
   const connection = new Connection(clusterApiUrl('devnet'));
   const payer = await initializeKeypair(connection);
 
-  await createCxpToken(connection, payer);
+  await createCxpToken(
+    connection, 
+    payer,
+    new PublicKey("88CVm5GsdCPb9KDCZxTo84pL1uqFHPURvjuj985ntvDY")
+  );
 }
 
 main()

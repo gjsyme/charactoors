@@ -9,6 +9,7 @@ import { PublicKey } from '@solana/web3.js';
 import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
+import { Router, useRouter } from 'next/router';
 
 interface NewMintProps {
   mint: PublicKey
@@ -46,10 +47,12 @@ const NewMint: NextPage<NewMintProps> = ({ mint }: NewMintProps) => {
     }
   }
 
+  const router = useRouter();
+  
   const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
     async (event) => {
-
-    }, []);
+      router.push(`/stake?mint=${mint}&imageSrc=${metadata?.image}`);
+    }, [router, mint, metadata]);
   
   return (
     <MainLayout>
