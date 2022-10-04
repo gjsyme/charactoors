@@ -125,7 +125,7 @@ const main = async () => {
   await createCxpToken(
     connection, 
     payer,
-    new PublicKey("88CVm5GsdCPb9KDCZxTo84pL1uqFHPURvjuj985ntvDY")
+    new PublicKey("91pvyozbzQ5x9msjWBfKmqF3nP8KCveTd9PXirufvCB8")
   );
 }
 
