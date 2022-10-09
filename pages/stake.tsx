@@ -5,16 +5,22 @@ import {
   Text, 
   HStack,
   Flex, 
-  Image 
+  Image, 
+  SimpleGrid
 } from "@chakra-ui/react";
 import { Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { NextPage } from "next";
-import { useEffect, useRef, useState } from 'react';
-import { ItemBox } from "../components/ItemBox";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { LootBox } from "../components/LootBox";
+import { GearItem } from "../components/GearItem";
 import MainLayout from "../components/MainLayout";
 import { StakeOptionsDisplay } from "../components/StakeOptionsDisplay";
+import { useWorkspace } from "../components/WorkspaceProvider";
+import { getStakeAccount } from "../utils/accounts";
+import { GEAR_OPTIONS } from "../utils/constants";
+import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
 
 interface StakeProps {
@@ -26,11 +32,15 @@ const Stake: NextPage<StakeProps> = ({
   mint,
   imageSrc
 }) => {
-  const [isStaking, setIsStaking] = useState(false);
-  const [level, setLevel] = useState(1);
+  // const [isStaking, setIsStaking] = useState(false);
+  const [stakeAccount, setStakeAccount] = useState<any>();
+  const [nftTokenAccount, setNftTokenAccount] = useState<PublicKey>()
+  const [gearBalances, setGearBalances] = useState<any>({});
   const [nftData, setNftData] = useState<any>();
+
   const { connection } = useConnection();
   const walletAdapter = useWallet();
+  const { stakingProgram } = useWorkspace();
 
   useEffect(() => {
     loadNftData();
@@ -49,7 +59,50 @@ const Stake: NextPage<StakeProps> = ({
       .run();
 
     setNftData(nft);
+    fetchState(nft.mint.address);
   }
+
+  const fetchState = useCallback(
+    async (mint: PublicKey) => {
+      try {
+        if (!walletAdapter.publicKey) {
+          return
+        }
+
+        const tokenAccount = (await connection.getTokenLargestAccounts(mint))
+          .value[0]
+          .address;
+
+        setNftTokenAccount(tokenAccount)
+
+        const account = await getStakeAccount(
+          stakingProgram,
+          walletAdapter.publicKey,
+          tokenAccount
+        );
+
+        setStakeAccount(account);
+
+        let balances: any = {}
+        for (let i = 0; i < GEAR_OPTIONS.length; i++) {
+          const gearMint = GEAR_OPTIONS[i]
+          const ata = await getAssociatedTokenAddress(
+            gearMint,
+            walletAdapter.publicKey
+          )
+          try {
+            const account = await getAccount(connection, ata)
+            balances[gearMint.toBase58()] = Number(account.amount)
+          } catch {}
+        }
+
+        setGearBalances(balances)
+      } catch (e) {
+        console.log("error getting stake account:", e)
+      }
+    },
+    [connection, walletAdapter, stakingProgram]
+  )
 
   return (
     <MainLayout>
@@ -82,40 +135,53 @@ const Stake: NextPage<StakeProps> = ({
                   width="100%" 
                   textAlign="center"
                 >
-                  {isStaking ? "STAKING" : "UNSTAKED"}
+                  {stakeAccount?.stakeState.staked ? "STAKING" : "UNSTAKED"}
                 </Text>
               </Center>
             </Flex>
-            <Text fontSize="2xl" as="b" color="white">
-              LEVEL {level}
-            </Text>
           </VStack>
           <VStack alignItems="flex-start" spacing={10}>
             <StakeOptionsDisplay
-              isStaked={isStaking}
-              daysStaked={4}
-              totalEarned={107}
-              claimable={42}
+              stakeAccount={stakeAccount}
+              fetchState={fetchState}
               nftData={nftData}
             />
-            <HStack spacing={10}>
+            <HStack spacing={10} align="start">
+              {Object.keys(gearBalances).length > 0 && (
+                <VStack alignItems="flex-start">
+                  <Text color="white" as="b" fontSize="2xl">
+                    Gear
+                  </Text>
+                  <SimpleGrid
+                    columns={Math.min(2, Object.keys(gearBalances).length)}
+                    spacing={3}
+                  >
+                    {Object.keys(gearBalances).map((key, _) => {
+                      return (
+                        <GearItem
+                          item={key}
+                          balance={gearBalances[key]}
+                          key={key}
+                        />
+                      )
+                    })}
+                  </SimpleGrid>
+                </VStack>
+              )}
               <VStack alignItems="flex-start">
                 <Text color="white" as="b" fontSize="2xl">
-                  Gear
+                  Loot Box
                 </Text>
                 <HStack>
-                  <ItemBox>mock</ItemBox>
-                  <ItemBox>alternate</ItemBox>
-                </HStack>
-              </VStack>
-              <VStack alignItems="flex-start">
-                <Text color="white" as="b" fontSize="2xl">
-                  Loot Boxes
-                </Text>
-                <HStack>
-                  <ItemBox>mock</ItemBox>
-                  <ItemBox>alternate</ItemBox>
-                  <ItemBox>third</ItemBox>
+                  {nftData && nftTokenAccount && (
+                    <LootBox
+                      stakeAccount={stakeAccount}
+                      nftTokenAccount={nftTokenAccount}
+                      fetchUpstreamState={() => {
+                        fetchState(nftData.mint.address)
+                      }}
+                    />
+                  )}
                 </HStack>
               </VStack>
             </HStack>

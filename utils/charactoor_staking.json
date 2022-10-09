@@ -286,6 +286,10 @@
             "type": "i64"
           },
           {
+            "name": "totalEarned",
+            "type": "u64"
+          },
+          {
             "name": "userPubkey",
             "type": "publicKey"
           },
@@ -335,8 +339,5 @@
       "name": "InvalidStakeState",
       "msg": "Stake state invalid"
     }
-  ],
-  "metadata": {
-    "address": "91pvyozbzQ5x9msjWBfKmqF3nP8KCveTd9PXirufvCB8"
-  }
+  ]
 }

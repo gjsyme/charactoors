@@ -1,85 +1,68 @@
 import { Button, Text, VStack } from "@chakra-ui/react";
-import { getAssociatedTokenAddress } from "@solana/spl-token";
+import { Account, getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
-import { useCallback, useEffect, useState } from "react";
+import { Connection, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { STAKE_MINT } from "../utils/constants";
 import { PROGRAM_ID as METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
-import { getStakeAccount } from "../utils/accounts";
+import { StakeAccount } from "../utils/accounts";
 import { useWorkspace } from "./WorkspaceProvider";
 
 interface StakeOptionsDisplayProps {
   nftData: { address: PublicKey, mint: { address: PublicKey}, edition: { address: PublicKey }};
-  isStaked: boolean;
-  daysStaked: number;
-  totalEarned: number;
-  claimable: number;
+  stakeAccount?: StakeAccount;
+  fetchState: (mint: PublicKey) => Promise<void>
 };
 
 export const StakeOptionsDisplay = (props: StakeOptionsDisplayProps) => {
   const {
     nftData,
-    isStaked, 
-    daysStaked,
-    totalEarned,
-    claimable
+    fetchState,
+    stakeAccount
   } = props;
   const walletAdapter = useWallet();
   const { connection } = useConnection();
-
-  const [isStaking, setIsStaking] = useState(isStaked);
   const [nftTokenAccount, setNftTokenAccount] = useState<PublicKey>();
+  const [cxpTokenAccount, setCxpTokenAccount] = useState<Account>();
+  const [isConfirmingTransaction, setIsConfirmingTransaction] = useState(false);
 
   const workspace = useWorkspace();
 
   useEffect(() => {
-    // checkStakingStatus();
     // looks weird, but we're looking for the only account that holds
     // as there is only 1 total
+    console.log('nftData', nftData);
     if(nftData){
-      console.log('effect called with',nftData);
-
-      connection.getTokenLargestAccounts(nftData.mint.address)
-      .then((accounts) => {
-        console.log('holders',accounts.value[0].address);
-        setNftTokenAccount(accounts.value[0].address) 
-      })
+      connection
+        .getTokenLargestAccounts(nftData.mint.address)
+        .then((accounts) => setNftTokenAccount(accounts.value[0].address));
+    }
+    if (walletAdapter.publicKey) {
+      getTokenAccount(walletAdapter.publicKey, connection);
     }
   }, [nftData, walletAdapter, connection]);
 
-  const checkStakingStatus = useCallback(async() => {
-    console.log('checking stake status',
-      walletAdapter.publicKey, 
-      nftTokenAccount, 
-      workspace.program
-    );
-    if(
-      !walletAdapter.publicKey || 
-      !nftTokenAccount || 
-      !workspace.program
-    ) return;
-
-    
-    try{
-      const account = await getStakeAccount(
-        workspace.program,
-        walletAdapter.publicKey,
-        nftTokenAccount
-      );
-
-      console.log('staking: ',account.stakeState.staked);
-
-      // state zero is staked
-      setIsStaking(account.stakeState.staked);
-    }catch(e){
-      console.log('error checking stake:', e);
+  const getTokenAccount = async (
+    publicKey: PublicKey,
+    connection: Connection
+  ) => {
+    try {
+      const ata = await getAssociatedTokenAddress(STAKE_MINT, publicKey);
+      console.log('ata', ata.toBase58());
+      const account = await getAccount(connection, ata);
+      console.log('account', account.address.toBase58());
+      setCxpTokenAccount(account);
+    }catch(err){
+      console.log('error in getTokenAccount', err);
     }
-  }, [walletAdapter, workspace.program, connection, nftTokenAccount]);
+  }
 
   const sendAndConfirmTransaction = useCallback(
     async (
       transaction: Transaction
     ) => {
+      setIsConfirmingTransaction(true);
+
       try{
         const txSignature = await walletAdapter.sendTransaction(transaction, connection);
 
@@ -92,15 +75,21 @@ export const StakeOptionsDisplay = (props: StakeOptionsDisplayProps) => {
           },
           "finalized"
         );
+
+        await getTokenAccount(walletAdapter.publicKey!, connection);
+        if(nftData){
+          await fetchState(nftData.mint.address);
+        }
       }catch(e){
         console.error('error', e);
+      }finally{
+        setIsConfirmingTransaction(false);
       }
-      await checkStakingStatus();
     }, [walletAdapter, connection]
   );
 
   const handleClaim = useCallback(async () => {
-    if (!walletAdapter.connected || !walletAdapter.publicKey || !workspace.program) {
+    if (!walletAdapter.connected || !walletAdapter.publicKey || !workspace.stakingProgram) {
       alert('please connect your wallet');
       return;
     }
@@ -118,7 +107,7 @@ export const StakeOptionsDisplay = (props: StakeOptionsDisplayProps) => {
 
     transaction.add(
       await workspace
-        .program
+        .stakingProgram
         .methods
         .redeem()
         .accounts({
@@ -132,8 +121,16 @@ export const StakeOptionsDisplay = (props: StakeOptionsDisplayProps) => {
     await sendAndConfirmTransaction(transaction);
   }, [walletAdapter, connection]);
 
+  const daysStaked = useMemo(() => {
+    return stakeAccount?.daysStaked() ?? 0
+  }, [stakeAccount]);
+
   const handleStake = useCallback(async () => {
-    if (!walletAdapter.connected || !walletAdapter.publicKey || !workspace.program) {
+    if (
+        !walletAdapter.connected || 
+        !walletAdapter.publicKey || 
+        !workspace.stakingProgram
+      ) {
       alert('please connect your wallet');
       return;
     }
@@ -145,7 +142,7 @@ export const StakeOptionsDisplay = (props: StakeOptionsDisplayProps) => {
     const transaction = new Transaction();
 
     transaction.add(
-      await workspace.program
+      await workspace.stakingProgram
         .methods
         .stake()
         .accounts({
@@ -160,7 +157,7 @@ export const StakeOptionsDisplay = (props: StakeOptionsDisplayProps) => {
   }, [walletAdapter, connection, nftData, nftTokenAccount]);
 
   const handleUnstake = useCallback(async () => {
-    if (!walletAdapter.connected || !walletAdapter.publicKey || !workspace.program) {
+    if (!walletAdapter.connected || !walletAdapter.publicKey || !workspace.stakingProgram) {
       alert('please connect your wallet');
       return;
     }
@@ -177,7 +174,7 @@ export const StakeOptionsDisplay = (props: StakeOptionsDisplayProps) => {
 
     transaction.add(
       await workspace
-        .program
+        .stakingProgram
         .methods
         .unstake()
         .accounts({
@@ -209,27 +206,28 @@ export const StakeOptionsDisplay = (props: StakeOptionsDisplayProps) => {
         as="b"
         fontSize="sm"
       >
-        { isStaking ? 
+        { stakeAccount?.stakeState.staked ? 
           `STAKING ${daysStaked} DAY${daysStaked===1 ? '' : 'S'}` :
           `READY TO STAKE`
         }
       </Text>
       <VStack spacing="-1">
         <Text color="white" as="b" fontSize="4xl">
-          { isStaking ? `${totalEarned} $CXP` : `0 $CXP`}
+          {`${Number(cxpTokenAccount?.amount ?? 0) / Math.pow(10, 2)} $CXP`}
         </Text>
         <Text color="bodyText">
-          {isStaking ? `${claimable} $CXP earned` : `earn $CXP by staking`}
+          {stakeAccount?.stakeState.staked ? `${stakeAccount?.claimable()} $CXP earned` : `earn $CXP by staking`}
         </Text>
       </VStack>
       <Button 
-        onClick={isStaking ? handleClaim : handleStake}
+        onClick={stakeAccount?.stakeState.staked ? handleClaim : handleStake}
         backgroundColor="buttonGreen"  
         w="200px"
+        isLoading={isConfirmingTransaction}
       >
-        {isStaking ? 'claim $CXP' : 'stake charactoor'}
+        {stakeAccount?.stakeState.staked ? 'claim $CXP' : 'stake charactoor'}
       </Button>
-      { isStaking && <Button onClick={handleUnstake}>unstake</Button> }
+      { stakeAccount?.stakeState.staked && <Button onClick={handleUnstake} isLoading={isConfirmingTransaction}>unstake</Button> }
     </VStack>
   );
 }

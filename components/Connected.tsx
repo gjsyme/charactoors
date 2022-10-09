@@ -33,7 +33,7 @@ const Connected: FC = () => {
       })
       .run()
       .then((candyMachine) => {
-        console.log('candy machine', candyMachine);
+        // console.log('candy machine', candyMachine);
         setCandyMachine(candyMachine);
       })
       .catch((err) => {
