@@ -56,7 +56,7 @@ const Connected: FC = () => {
           .run();
 
         console.log('nft', nft);
-        router.push(`/new-mint?mint=${nft.nft.address.toBase58()}`);
+        router.push(`/new-mint?mint=${nft.nft.address}`);
       }catch(err){
         console.error('error minting', err);
       } finally {
@@ -80,9 +80,9 @@ const Connected: FC = () => {
           </Heading>
           <Text color="bodyText" fontSize="xl" textAlign="center">
             Each Charactoor is randomly generated and can be staked to receive&nbsp;
-            <Text as="b">$XP</Text>
+            <Text as="b">$CXP</Text>
             . Use your&nbsp;
-            <Text as="b">$XP</Text> to
+            <Text as="b">$CXP</Text> to
             upgrade your charactoor and receive perks in the community!
           </Text>
         </VStack>
