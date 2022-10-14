@@ -16,9 +16,9 @@ import {
   createInitSwitchboardInstructions,
   createOpenLootboxInstructions,
 } from "../utils/instructions"
-import { AnchorNftStaking } from "../utils/anchor_nft_staking"
 import { getAssociatedTokenAddress } from "@solana/spl-token"
 import { SendTransactionOptions } from "@solana/wallet-adapter-base"
+import { CharactoorStaking } from "../utils/charactoor_staking"
 
 export const LootBox = ({
   stakeAccount,
@@ -166,7 +166,7 @@ export const LootBox = ({
     publicKey: PublicKey,
     lootboxProgram: Program<LootboxProgram>,
     switchboardProgram: SwitchboardProgram,
-    stakingProgram: Program<AnchorNftStaking>
+    stakingProgram: Program<CharactoorStaking>
   ) => {
     if (!userAccountExists) {
       const { instructions, vrfKeypair } =

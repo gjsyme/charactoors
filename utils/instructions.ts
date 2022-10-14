@@ -130,7 +130,7 @@ async function getAccountsAndData(
     userStatePda: userStatePda,
     vrfAccount: vrfAccount,
     escrow: escrow,
-    wrappedSOLMint: wrappedSOLMint,
+    wrappedSOLMint: wrappedSOLMint as any,  // was throwing an error for tlvMint
     programStateAccount: programStateAccount,
     stateBump: stateBump,
     permissionBump: permissionBump,
